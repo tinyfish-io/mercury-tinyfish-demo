@@ -12,6 +12,7 @@ import {
 } from './relevance';
 
 const SEARCH_URL = process.env.TINYFISH_SEARCH_URL || 'https://api.search.tinyfish.ai';
+const SEARCH_TIMEOUT_MS = 20_000; // page text makes this the slowest phase; a stall must still end the stream
 const PICK_FROM = 10; // sections the best-section choice picks among
 const ANSWER_SOURCES = 8; // sections Mercury 3 writes the answer from
 const MIN_RELEVANCE = 0.15; // below this a section is noise, unless nothing scores higher
@@ -45,7 +46,10 @@ export async function runSearch(
   for (const [k, v] of Object.entries(args)) if (v) url.searchParams.set(k, v);
   if (deep) url.searchParams.set('fetch', '{}'); // inline page text for the ranking to read
 
-  const res = await fetch(url, { headers: { 'X-API-Key': searchKey() ?? '' }, signal });
+  const res = await fetch(url, {
+    headers: { 'X-API-Key': searchKey() ?? '' },
+    signal: AbortSignal.any([signal, AbortSignal.timeout(SEARCH_TIMEOUT_MS)]),
+  });
   if (!res.ok) {
     emit({ type: 'error', message: `TinyFish Search failed (HTTP ${res.status}).` });
     return;

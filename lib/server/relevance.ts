@@ -89,7 +89,11 @@ async function scoreBatch(query: string, batch: Section[]) {
       page: {
         title: first.title,
         url: first.url,
-        ...(first.snippetOnly ? { note: 'this is the search snippet for the page' } : {}),
+        // Only when the batch is all snippet: the snippet leads every page, so `first` alone would mislabel
+        // batches that also hold fetched sections.
+        ...(batch.every((s) => s.snippetOnly)
+          ? { note: 'this is the search snippet for the page' }
+          : {}),
       },
       sections,
     },

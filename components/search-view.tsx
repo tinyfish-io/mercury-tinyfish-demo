@@ -127,6 +127,15 @@ export function useSearch() {
 }
 export type SearchState = ReturnType<typeof useSearch>;
 
+const PHASE_ANNOUNCEMENT: Record<Status, string> = {
+  idle: '',
+  searching: 'Searching the web',
+  ranking: 'Ranking results',
+  answering: 'Writing the answer',
+  done: 'Answer ready',
+  error: 'Search failed',
+};
+
 const busy = (s: Status) => s === 'searching' || s === 'ranking' || s === 'answering';
 
 /** Left side: the query, the collapsed options and one-click examples. */
@@ -273,7 +282,11 @@ export function SearchPanel({ state }: { state: SearchState }) {
 export function SearchResults({ state }: { state: SearchState }) {
   const { status, found, error } = state;
   return (
-    <section className="search-output" aria-label="Search results" aria-live="polite">
+    <section className="search-output" aria-label="Search results">
+      {/* Only phase changes are announced: the answer itself changes at every diffusion step. */}
+      <p className="sr-only" aria-live="polite">
+        {PHASE_ANNOUNCEMENT[status]}
+      </p>
       {status === 'idle' && (
         <div className="search-empty">
           <Icon name="search" size={22} />

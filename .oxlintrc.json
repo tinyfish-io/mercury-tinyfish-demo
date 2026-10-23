@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "nextjs", "import"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2022": true
+  },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "import/no-cycle": "error",
+    "react/react-in-jsx-scope": "off"
+  },
+  "overrides": [
+    {
+      "files": ["app/api/**", "lib/**"],
+      "rules": {
+        "no-console": "error"
+      }
+    }
+  ],
+  "ignorePatterns": [".next/", "node_modules/", "next-env.d.ts"]
+}
